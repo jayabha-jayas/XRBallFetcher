@@ -75,7 +75,8 @@ namespace PolySpatial.Samples
                     continue;
 
                 var pieceObject = spatialPointerState.targetObject;
-                if (pieceObject != null)
+
+                if (pieceObject != null && pieceObject == Ball)
                 {
                     // Swap materials and record initial relative position & rotation from hand to object for later use when the piece is selected
                     if (pieceObject.TryGetComponent(out PieceSelectionBehavior piece) && piece.selectingPointer == -1)
@@ -103,7 +104,8 @@ namespace PolySpatial.Samples
                 switch (spatialPointerState.phase)
                 {
                     case SpatialPointerPhase.Moved:
-                        if (m_CurrentSelections.TryGetValue(interactionId, out var selection))
+                        if (m_CurrentSelections.TryGetValue(interactionId, out var selection) &&
+                            spatialPointerState.targetObject == Ball)
                         {
                             // Position the piece at the interaction position, maintaining the same relative transform from interaction position to selection pivot
                             var deviceRotation = spatialPointerState.inputDeviceRotation;
@@ -120,9 +122,13 @@ namespace PolySpatial.Samples
                         DeselectPiece(interactionId);
                         break;
                     case SpatialPointerPhase.Ended:
-                        DeselectPiece(interactionId);
-                        rb.AddForce((B - A) * 100);
-                        // rb.useGravity = true;
+                        if (spatialPointerState.targetObject == Ball)
+                        {
+                            DeselectPiece(interactionId);
+                            rb.AddForce((B - A) * 100);
+                            // rb.useGravity = true;
+                        }
+
                         break;
                 }
             }
